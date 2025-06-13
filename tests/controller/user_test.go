@@ -51,7 +51,6 @@ func TestCreateUser_AlreadyExists(t *testing.T) {
 	setupUserTestDB()
 	gin.SetMode(gin.TestMode)
 
-	// cria o usuário antes do teste
 	_, err := controller.CreateUserHandler("Antonio")
 	assert.Nil(t, err)
 
@@ -92,7 +91,6 @@ func TestGetUser_Success(t *testing.T) {
 	setupUserTestDB()
 	gin.SetMode(gin.TestMode)
 
-	// cria um usuário válido
 	user, err := controller.CreateUserHandler("Davi")
 	assert.Nil(t, err)
 
