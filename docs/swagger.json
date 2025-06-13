@@ -1,17 +1,16 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Using a translation service as an example",
-        "title": "Go Clean Template API",
+        "description": "API simples para registro de pagamentos entre usuários.",
+        "title": "Me Pague API",
         "contact": {},
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/v1",
+    "basePath": "/",
     "paths": {
-        "/translation/do-translate": {
-            "post": {
-                "description": "Translate a text",
+        "/billing": {
+            "get": {
                 "consumes": [
                     "application/json"
                 ],
@@ -19,46 +18,43 @@
                     "application/json"
                 ],
                 "tags": [
-                    "translation"
+                    "Cobranças"
                 ],
-                "summary": "Translate",
-                "operationId": "do-translate",
+                "summary": "Obtém ou cria uma cobrança entre dois usuários",
                 "parameters": [
                     {
-                        "description": "Set up translation",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.Translate"
-                        }
+                        "type": "string",
+                        "description": "ID do pagador",
+                        "name": "payer_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID do recebedor",
+                        "name": "receiver_id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.Translation"
+                            "$ref": "#/definitions/models.Billing"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Error"
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/translation/history": {
-            "get": {
-                "description": "Show all translation history",
+        "/payment": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -66,21 +62,107 @@
                     "application/json"
                 ],
                 "tags": [
-                    "translation"
+                    "Pagamentos"
                 ],
-                "summary": "Show history",
-                "operationId": "history",
+                "summary": "Registra um novo pagamento e atualiza o saldo",
+                "parameters": [
+                    {
+                        "description": "Dados do pagamento",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PaymentInput"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.TranslationHistory"
+                            "$ref": "#/definitions/request.PaymentInput"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.Error"
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Cria um novo usuário",
+                "parameters": [
+                    {
+                        "description": "Dados do usuário",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateUserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateUserInput"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Usuários"
+                ],
+                "summary": "Obtém um usuário pelo ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do usuário",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -88,66 +170,66 @@
         }
     },
     "definitions": {
-        "entity.Translation": {
+        "models.Billing": {
             "type": "object",
             "properties": {
-                "destination": {
-                    "type": "string",
-                    "example": "en"
+                "amount": {
+                    "type": "integer"
                 },
-                "original": {
-                    "type": "string",
-                    "example": "текст для перевода"
+                "created_at": {
+                    "type": "string"
                 },
-                "source": {
-                    "type": "string",
-                    "example": "auto"
+                "id": {
+                    "type": "integer"
                 },
-                "translation": {
-                    "type": "string",
-                    "example": "text for translation"
+                "payer_id": {
+                    "type": "integer"
+                },
+                "receiver_id": {
+                    "type": "integer"
                 }
             }
         },
-        "entity.TranslationHistory": {
+        "models.User": {
             "type": "object",
             "properties": {
-                "history": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.Translation"
-                    }
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
-        "request.Translate": {
+        "request.CreateUserInput": {
             "type": "object",
             "required": [
-                "destination",
-                "original",
-                "source"
+                "name"
             ],
             "properties": {
-                "destination": {
-                    "type": "string",
-                    "example": "en"
-                },
-                "original": {
-                    "type": "string",
-                    "example": "текст для перевода"
-                },
-                "source": {
-                    "type": "string",
-                    "example": "auto"
+                "name": {
+                    "type": "string"
                 }
             }
         },
-        "response.Error": {
+        "request.PaymentInput": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer",
+                    "example": 50
+                },
+                "billing_id": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
+        "response.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
-                    "type": "string",
-                    "example": "message"
+                    "type": "string"
                 }
             }
         }
